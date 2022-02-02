@@ -1,4 +1,4 @@
-#/usr/env perl
+#!/usr/env perl
 use strict;use warnings;
 
 BEGIN {  # attempt to get this to work on Windows Consoles
