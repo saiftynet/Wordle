@@ -24,7 +24,7 @@ my @help=(
 color("green")."   Green ".color("reset")."  = Right letter in right place",
 color("yellow")."   Yellow ". color("reset")." = Right letter in wrong place",
 "   Keyboard ".color("red"). " Red ". color("reset")." = letter not found in word", 
-"   Keyboard ".color("cyan"). " Cyan ". color("reset")."= letter not found in word", );
+"   Keyboard ".color("cyan"). " Cyan ". color("reset")."= letter found in word", );
 
 # load the valid words from Unix Dictionary
 my %validWords=();
