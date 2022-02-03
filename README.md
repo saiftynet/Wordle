@@ -12,5 +12,5 @@ It is a simple command line Perl application that is sort of replicates the Word
 
 CHANGES
 V0.02
-1) hymie detected bug that seen words remain seen between games...addresses by restoring validWords hash
-2) Consoles with white backgrounds not catered for; addressed for now ny using color("reset") instead of color("white")
+1) [hymie0](https://github.com/saiftynet/Wordle/issues?q=is%3Aissue+is%3Aopen+author%3Ahymie0) detected bug that seen words remain seen between games...addresses by restoring validWords hash
+2) Consoles with white backgrounds not catered for; addressed for now by using color("reset") instead of color("white")
