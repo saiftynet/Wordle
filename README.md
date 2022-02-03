@@ -9,8 +9,13 @@ It is a simple command line Perl application that is sort of replicates the Word
 
 ![image](https://user-images.githubusercontent.com/34284663/152206350-da263af5-95ea-4ac4-8656-c8e0dce19a22.png)
 
+![image](https://user-images.githubusercontent.com/34284663/152414078-e5926719-e001-4eef-8ba0-549a93f38156.png)
 
 CHANGES
 V0.02
 1) [hymie0](https://github.com/saiftynet/Wordle/issues?q=is%3Aissue+is%3Aopen+author%3Ahymie0) detected bug that seen words remain seen between games...addresses by restoring validWords hash
 2) Consoles with white backgrounds not catered for; addressed for now by using color("reset") instead of color("white")
+
+V0.03
+
+Added help message
