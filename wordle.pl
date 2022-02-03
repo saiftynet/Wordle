@@ -1,6 +1,8 @@
 #!/usr/env perl
 use strict;use warnings;
 
+my $VERSION=0.02;
+
 BEGIN {  # attempt to get this to work on Windows Consoles
    if ($^O eq 'MSWin32') {
 	 require  'Win32\Console\ANSI.pm';
@@ -11,7 +13,7 @@ use Term::ANSIColor;  # allow coloured terminal output
 
 my $wordLength=5;     # set number of letters 
 my $maxGuesses=6;     # set number of guesses 
-my (@guesses, %guessedChars,$goes, $gotIt, $guess,%workspace,@keyboard);
+my (@rows, $goes,$guess,%workspace,@keyboard);
 my $firstLoad=1;      
 my %scores=(wins=>0,fails=>0);
 $scores{$_}=0 foreach (1..$maxGuesses);
@@ -28,24 +30,23 @@ close $fh;
 #main game loop
 while ($firstLoad || prompt("\nWant another game Y/N?")=~/^y/i){
 	$firstLoad=0;
-	%guessedChars=();
-	@guesses=("|"."   |"x$wordLength)x$maxGuesses;
-	$guess=""; $goes=0; $gotIt=0;
-	$workspace{gotIt}=0;
+	@rows=("|"."   |"x$wordLength)x$maxGuesses;   #empty cells
+	$guess="";$goes=0;
+	%workspace=(gotIt=>0, guessList=>[]);
 	@keyboard=("    Q  W  E  R  T  Y  U  I  O  P ",
               "      A  S  D  F  G  H  J  K  L ",
               "        Z  X  C  V  B  N  M ",);
 	my $answer=(keys %validWords)[ rand keys %validWords ];
 		
-	while (!$workspace{gotIt} && $goes++ < $maxGuesses){
+	while (!$workspace{gotIt} && $goes++  < $maxGuesses){
 		drawTable();
 		while ($guess eq "" || notValid($guess)){
 			$guess=uc(prompt("Guess $goes >>"));
 		}
 		$validWords{$guess}=2;
-		updateKeyboard($guess,$answer);
+		updateKeyboard($guess,$answer);      # Colour keyboard
 		match($guess,$answer);               # check for match
-		$guesses[$goes-1]=$workspace{show};  # populate row
+		$rows[$goes-1]=$workspace{show};     # populate row
 		$guess="";                           # reset guess
 	}
 
@@ -60,29 +61,31 @@ while ($firstLoad || prompt("\nWant another game Y/N?")=~/^y/i){
 		$scores{fails}++
 	}
 	print " $_=$scores{$_} ;" foreach (sort keys %scores);
+	$validWords{$_}=1 foreach (@{$workspace{guessList}});   # reset guessed words
 }
 
-sub drawTable{
+sub drawTable{ # draws the saved rows and the keyboard
 	system $^O eq 'MSWin32' ? 'cls':'clear';
 	print color("blue")."                W O R D L E\n".color("reset");
 	my $rowseparator="          +".("---+" x $wordLength)."\n";
 	my $line=0;
-	foreach my $row(@guesses){
+	foreach my $row(@rows){
 		print $rowseparator;
 		print "          $row";
 		$line ++;
-		print $keyboard[$line-2] if ($line>=2  && $line<5); 
+		print $keyboard[$line-2] if ($line>=2  && $line<(2+@keyboard)); 
 		print"\n";
 	}
 	print $rowseparator;
 }
 
-sub match{
+# this subroutine checks, gets matches, generates row data
+sub match{  
 	my ($guess,$answer)=@_;
-	%workspace=();
-	my @colours=(color("white"),color("green"),color("yellow"));
+	my @colours=(color("reset"),color("green"),color("yellow"));
 	$workspace{gotIt}=(uc($guess) eq uc($answer))?1:0;
 	$workspace{guess}=[split (//,uc($guess))];
+	$workspace{guessList}=[@{$workspace{guessList}},$guess];
 	$workspace{answer}=[split (//,uc($answer))];
 	$workspace{match}=[map {$workspace{guess}[$_ ] eq $workspace{answer}[$_ ]?1:0} (0..($wordLength-1)) ]; 
 	$workspace{match}=[map {$workspace{match}[$_ ]==1? $workspace{match}[$_ ]:($answer=~/$workspace{guess}[$_ ]/i?2:0) } (0..($wordLength-1)) ];
@@ -92,7 +95,7 @@ sub match{
 		       }  (0..($wordLength-1)))." |";
 }
 
-sub updateKeyboard{
+sub updateKeyboard{  # this uses guessed characters to colour keyboard
 	my ($guess,$answer)=@_;
 	$guess=uc($guess);
 	foreach my $gc(split (//,$guess)){
@@ -133,6 +136,3 @@ sub notValid{
 	}
 	
 }
-
-
-
