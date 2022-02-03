@@ -1,7 +1,7 @@
 #!/usr/env perl
 use strict;use warnings;
 
-my $VERSION=0.02;
+my $VERSION=0.03;
 
 BEGIN {  # attempt to get this to work on Windows Consoles
    if ($^O eq 'MSWin32') {
@@ -17,6 +17,14 @@ my (@rows, $goes,$guess,%workspace,@keyboard);
 my $firstLoad=1;      
 my %scores=(wins=>0,fails=>0);
 $scores{$_}=0 foreach (1..$maxGuesses);
+
+
+my @help=(
+"   Try and guess a $wordLength letter word in $maxGuesses moves"," ",
+color("green")."   Green ".color("reset")."  = Right letter in right place",
+color("yellow")."   Yellow ". color("reset")." = Right letter in wrong place",
+"   Keyboard ".color("red"). " Red ". color("reset")." = letter not found in word", 
+"   Keyboard ".color("cyan"). " Cyan ". color("reset")."= letter not found in word", );
 
 # load the valid words from Unix Dictionary
 my %validWords=();
@@ -64,19 +72,17 @@ while ($firstLoad || prompt("\nWant another game Y/N?")=~/^y/i){
 	$validWords{$_}=1 foreach (@{$workspace{guessList}});   # reset guessed words
 }
 
-sub drawTable{ # draws the saved rows and the keyboard
+sub drawTable{ # draws the saved rows andthe keyboard
 	system $^O eq 'MSWin32' ? 'cls':'clear';
 	print color("blue")."                W O R D L E\n".color("reset");
-	my $rowseparator="          +".("---+" x $wordLength)."\n";
+	my $rowseparator="          +".("---+" x $wordLength);
 	my $line=0;
+	my @helpText=(@help," ",@keyboard);
 	foreach my $row(@rows){
-		print $rowseparator;
-		print "          $row";
-		$line ++;
-		print $keyboard[$line-2] if ($line>=2  && $line<(2+@keyboard)); 
-		print"\n";
+		print $rowseparator   ,($helpText[$line])?$helpText[$line++]:"","\n";
+		print "          $row",($helpText[$line])?$helpText[$line++]:"","\n";
 	}
-	print $rowseparator;
+	print $rowseparator,"\n";
 }
 
 # this subroutine checks, gets matches, generates row data
@@ -136,3 +142,6 @@ sub notValid{
 	}
 	
 }
+
+
+
