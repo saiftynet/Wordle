@@ -1,7 +1,7 @@
 #!/usr/env perl
 use strict;use warnings;
 
-my $VERSION=0.03;
+my $VERSION=0.04;
 
 BEGIN {  # attempt to get this to work on Windows Consoles
    if ($^O eq 'MSWin32') {
@@ -13,11 +13,10 @@ use Term::ANSIColor;  # allow coloured terminal output
 
 my $wordLength=5;     # set number of letters 
 my $maxGuesses=6;     # set number of guesses 
-my (@rows, $goes,$guess,%workspace,@keyboard);
-my $firstLoad=1;      
-my %scores=(wins=>0,fails=>0);
-$scores{$_}=0 foreach (1..$maxGuesses);
+my $source    =  "/usr/share/dict/words";
 
+my (@rows, $goes,$guess,%workspace,@keyboard,%scores);
+$scores{$_}=0 foreach (1..$maxGuesses,"wins","fails");
 
 my @help=(
 "   Try and guess a $wordLength letter word in $maxGuesses moves"," ",
@@ -28,19 +27,16 @@ color("yellow")."   Yellow ". color("reset")." = Right letter in wrong place",
 
 # load the valid words from Unix Dictionary
 my %validWords=();
-open my $fh, "<", "/usr/share/dict/words"; 
+open my $fh, "<", $source; 
 foreach my $word (<$fh>){
-	chomp $word;
-	$validWords{uc($word)}=1 if ($word=~m/^[a-z]{$wordLength}$/)
+	$validWords{uc($1)}=1 if ($word=~m/^([a-z]{$wordLength})\n?$/)
 }
 close $fh;
 
 #main game loop
-while ($firstLoad || prompt("\nWant another game Y/N?")=~/^y/i){
-	$firstLoad=0;
+while (!$goes || prompt("\nWant another game Y/N?")=~/^y/i){
 	@rows=("|"."   |"x$wordLength)x$maxGuesses;   #empty cells
-	$guess="";$goes=0;
-	%workspace=(gotIt=>0, guessList=>[]);
+	$guess=""; $goes=0; %workspace=(gotIt=>0, guessList=>[]);
 	@keyboard=("    Q  W  E  R  T  Y  U  I  O  P ",
               "      A  S  D  F  G  H  J  K  L ",
               "        Z  X  C  V  B  N  M ",);
@@ -57,14 +53,13 @@ while ($firstLoad || prompt("\nWant another game Y/N?")=~/^y/i){
 		$rows[$goes-1]=$workspace{show};     # populate row
 		$guess="";                           # reset guess
 	}
+	drawTable();
 
 	if ($workspace{gotIt}){ 
-		drawTable();
 		print "\nWell done!! Guessed it in $goes\nScore:- ";
 		$scores{wins}++;$scores{$goes}++;
 	}
 	else{
-		drawTable();
 		print "Failed!! answer was $answer\nScore:- ";
 		$scores{fails}++
 	}
@@ -72,15 +67,15 @@ while ($firstLoad || prompt("\nWant another game Y/N?")=~/^y/i){
 	$validWords{$_}=1 foreach (@{$workspace{guessList}});   # reset guessed words
 }
 
-sub drawTable{ # draws the saved rows andthe keyboard
+sub drawTable{ # draws the saved rows, the help message and the keyboard
 	system $^O eq 'MSWin32' ? 'cls':'clear';
-	print color("blue")."                W O R D L E\n".color("reset");
-	my $rowseparator="          +".("---+" x $wordLength);
+	print color("bright_magenta")."                      W O R D L E  in  P E R L \n\n".color("reset");
+	my $rowseparator="       +".("---+" x $wordLength);
 	my $line=0;
 	my @helpText=(@help," ",@keyboard);
 	foreach my $row(@rows){
-		print $rowseparator   ,($helpText[$line])?$helpText[$line++]:"","\n";
-		print "          $row",($helpText[$line])?$helpText[$line++]:"","\n";
+		print $rowseparator   ,($helpText[$line])?$helpText[$line++]:"","\n",
+		      "       $row",($helpText[$line])?$helpText[$line++]:"","\n";
 	}
 	print $rowseparator,"\n";
 }
@@ -89,10 +84,10 @@ sub drawTable{ # draws the saved rows andthe keyboard
 sub match{  
 	my ($guess,$answer)=@_;
 	my @colours=(color("reset"),color("green"),color("yellow"));
-	$workspace{gotIt}=(uc($guess) eq uc($answer))?1:0;
-	$workspace{guess}=[split (//,uc($guess))];
+	$workspace{gotIt}=($guess eq $answer)?1:0;
+	$workspace{guess}=[split (//,$guess)];
 	$workspace{guessList}=[@{$workspace{guessList}},$guess];
-	$workspace{answer}=[split (//,uc($answer))];
+	$workspace{answer}=[split (//,$answer)];
 	$workspace{match}=[map {$workspace{guess}[$_ ] eq $workspace{answer}[$_ ]?1:0} (0..($wordLength-1)) ]; 
 	$workspace{match}=[map {$workspace{match}[$_ ]==1? $workspace{match}[$_ ]:($answer=~/$workspace{guess}[$_ ]/i?2:0) } (0..($wordLength-1)) ];
 	$workspace{show} ="| ".join (" | ",map {
@@ -115,8 +110,7 @@ sub updateKeyboard{  # this uses guessed characters to colour keyboard
 
 sub prompt{ 
 	my $pr=shift;
-	print color('bold yellow'),$pr,">>";
-	print color('bold green');
+	print color('bold yellow'),$pr,">>",color('bold green');
 	chomp(my $response=<STDIN>);
 	print color('reset');
 	return $response;
@@ -142,6 +136,3 @@ sub notValid{
 	}
 	
 }
-
-
-
