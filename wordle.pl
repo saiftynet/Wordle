@@ -1,4 +1,4 @@
-#!/usr/env perl
+#!/usr/bin/env perl
 use strict;use warnings;
 
 my $VERSION=0.04;
