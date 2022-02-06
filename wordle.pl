@@ -16,7 +16,7 @@ my $maxGuesses=6;     # set number of guesses
 my $source    =  "/usr/share/dict/words";
 
 my (@rows, $goes,$guess,%workspace,@keyboard,%scores);
-$scores{$_}=0 foreach (1..$maxGuesses,"Wins","Fails","Game Time");
+$scores{$_}=0 foreach (1..$maxGuesses,"Wins","Fails","gametime");
 
 my @help=(
 "   Try and guess a $wordLength letter word in $maxGuesses moves"," ",
@@ -55,25 +55,28 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/n/i){
 		$rows[$goes-1]=$workspace{show};     # populate row
 		$guess="";                           # reset guess
 	}
-	$scores{"Game Time"}+=time-$time;
+	$scores{gametime}+=time-$time;
 	if ($workspace{gotIt}){ 
-		print "\nWell done!! Got it in $goes goes in ".(time-$time)." seconds\nStats: ";
+		$scores{display}=["   Well done!! Got it in $goes goes " , "   in ".(time-$time)." secs"];
 		$scores{Wins}++;$scores{$goes}++;
 	}
 	else{
-		print "Failed!! answer was $answer\nStats: ";
+		$scores{display}=["   Failed!! answer was $answer"];;
 		$scores{Fails}++
 	}
+	$scores{display}=[@{$scores{display}}," "x8 . "Statistics (".int(100*$scores{Wins}/($scores{Wins}+$scores{Fails}))."%)"]; 
+	$scores{display}=[@{$scores{display}},"   $_ ".("#" x$scores{$_})] foreach (1..$maxGuesses);
+	$scores{display}=[@{$scores{display}}," ","   Total Game Time = $scores{gametime}"];
 	drawTable("end");
-	print " $_=$scores{$_};" foreach (sort keys %scores);
 }
 
 sub drawTable{ # draws the saved rows, the help message and the keyboard
+	my $end=shift;
 	system $^O eq 'MSWin32' ? 'cls':'clear';
 	print color("bright_magenta")."                      W O R D L E  in  P E R L \n\n".color("reset");
 	my $rowseparator="       +".("---+" x $wordLength);
 	my $line=0;
-	my @helpText=(@help," ",@keyboard);
+	my @helpText=($end?@{$scores{display}}:(@help," ",@keyboard));
 	foreach my $row(@rows){
 		print $rowseparator   ,($helpText[$line])?$helpText[$line++]:"","\n",
 		      "       $row",($helpText[$line])?$helpText[$line++]:"","\n";
@@ -88,6 +91,7 @@ sub match{
 	$workspace{gotIt}=($guess eq $answer)?1:0;
 	$workspace{guess}=[split (//,$guess)];
 	$workspace{guessList}{$guess}=1;#=[@{$workspace{guessList}},$guess];
+	
 	$workspace{answer}=[split (//,$answer)];
 	$workspace{match}=[map {$workspace{guess}[$_ ] eq $workspace{answer}[$_ ]?1:0} (0..($wordLength-1)) ]; 
 	$workspace{match}=[map {$workspace{match}[$_ ]==1? $workspace{match}[$_ ]:($answer=~/$workspace{guess}[$_ ]/i?2:0) } (0..($wordLength-1)) ];
