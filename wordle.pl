@@ -13,7 +13,9 @@ use Term::ANSIColor;  # allow coloured terminal output
 
 my $wordLength=5;     # set number of letters 
 my $maxGuesses=6;     # set number of guesses 
-my $source    =  "/usr/share/dict/words";
+
+                      # use a local list of words or else a Unixy source
+my $source    =  (-e "words")?"words":"/usr/share/dict/words";
 
 my (@rows, $goes,$guess,%workspace,@keyboard,%scores);
 $scores{$_}=0 foreach (1..$maxGuesses,"Wins","Fails","gametime");
