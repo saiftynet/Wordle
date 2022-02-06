@@ -8,6 +8,8 @@ It is a simple command line Perl application that is sort of replicates the Word
 
 ![image](https://user-images.githubusercontent.com/34284663/152427381-516d91e1-4424-4f18-859e-164b5627e8d8.png)
 
+now with game statistics
+![image](https://user-images.githubusercontent.com/34284663/152687224-b727cf30-e5b5-4785-b7f9-11fd186cf9e0.png)
 
 CHANGES
 
@@ -16,4 +18,9 @@ V0.02
 2) Consoles with white backgrounds not catered for; addressed for now by using color("reset") instead of color("white")
 
 V0.03
-Added help message
+1) Added help message
+
+V0.05
+1) Added  statistics including game time, histogram
+
+
