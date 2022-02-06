@@ -96,7 +96,8 @@ sub match{
 	
 	$workspace{answer}=[split (//,$answer)];
 	$workspace{match}=[map {$workspace{guess}[$_ ] eq $workspace{answer}[$_ ]?1:0} (0..($wordLength-1)) ]; 
-	$workspace{match}=[map {$workspace{match}[$_ ]==1? $workspace{match}[$_ ]:($answer=~/$workspace{guess}[$_ ]/i?2:0) } (0..($wordLength-1)) ];
+	$answer=join("",map {$workspace{match}[$_ ]==1?" ":$workspace{answer}[$_ ]} (0..($wordLength-1)));
+	$workspace{match}=[map {$workspace{match}[$_ ]==1? $workspace{match}[$_ ]:($answer=~s/$workspace{guess}[$_ ]/ /i?2:0) } (0..($wordLength-1)) ];
 	$workspace{show} ="| ".join (" | ",map {
 		       $colours[$workspace{match}[$_ ]].
 		       $workspace{guess}[$_ ].color("reset");
