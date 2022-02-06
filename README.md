@@ -9,6 +9,7 @@ It is a simple command line Perl application that is sort of replicates the Word
 ![image](https://user-images.githubusercontent.com/34284663/152427381-516d91e1-4424-4f18-859e-164b5627e8d8.png)
 
 now with game statistics
+
 ![image](https://user-images.githubusercontent.com/34284663/152687224-b727cf30-e5b5-4785-b7f9-11fd186cf9e0.png)
 
 CHANGES
