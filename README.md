@@ -23,5 +23,6 @@ V0.03
 
 V0.05
 1) Added  statistics including game time, histogram
+2) Improved algorithm for getting matches
 
 
