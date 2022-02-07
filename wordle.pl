@@ -69,7 +69,8 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/n/i){
 	$scores{display}=[@{$scores{display}}," "x8 . "Statistics (".int(100*$scores{Wins}/($scores{Wins}+$scores{Fails}))."%)"]; 
 	$scores{display}=[@{$scores{display}},"   $_ ".color("green").("█" x(20*$scores{$_}/$max)).color("reset")] foreach (1..$maxGuesses);
 	$scores{display}=[@{$scores{display}}," ","   Total Game Time = $scores{gametime} (avg ".
-	                                              sprintf("%.2f", $scores{gametime}/($scores{Wins}+$scores{Fails})).")"];
+	                                              sprintf("%.2f", $scores{gametime}/($scores{Wins}+$scores{Fails})).")",
+						      "$scores{Wins} Wins and $scores{Fails}" ];
 	drawTable("end");
 }
 
