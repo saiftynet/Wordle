@@ -13,7 +13,6 @@ use Term::ANSIColor;  # allow coloured terminal output
 
 my $wordLength=5;     # set number of letters 
 my $maxGuesses=6;     # set number of guesses 
-
                       # use a local list of words or else a Unixy source
 my $source    =  (-e "words")?"words":"/usr/share/dict/words";
 
@@ -64,11 +63,13 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/n/i){
 	}
 	else{
 		$scores{display}=["   Failed!! answer was $answer"];;
-		$scores{Fails}++
+		$scores{Fails}++;
 	}
+	my $max=(sort {$a <=> $b}(@scores{1..$maxGuesses}),1)[-1];
 	$scores{display}=[@{$scores{display}}," "x8 . "Statistics (".int(100*$scores{Wins}/($scores{Wins}+$scores{Fails}))."%)"]; 
-	$scores{display}=[@{$scores{display}},"   $_ ".("#" x$scores{$_})] foreach (1..$maxGuesses);
-	$scores{display}=[@{$scores{display}}," ","   Total Game Time = $scores{gametime}"];
+	$scores{display}=[@{$scores{display}},"   $_ ".color("green").("█" x(20*$scores{$_}/$max)).color("reset")] foreach (1..$maxGuesses);
+	$scores{display}=[@{$scores{display}}," ","   Total Game Time = $scores{gametime} (avg ".
+	                                              sprintf("%.2f", $scores{gametime}/($scores{Wins}+$scores{Fails})).")"];
 	drawTable("end");
 }
 
@@ -92,8 +93,7 @@ sub match{
 	my @colours=(color("reset"),color("green"),color("yellow"));
 	$workspace{gotIt}=($guess eq $answer)?1:0;
 	$workspace{guess}=[split (//,$guess)];
-	$workspace{guessList}{$guess}=1;#=[@{$workspace{guessList}},$guess];
-	
+	$workspace{guessList}{$guess}=1;   # easiest way to check if word already guessed
 	$workspace{answer}=[split (//,$answer)];
 	$workspace{match}=[map {$workspace{guess}[$_ ] eq $workspace{answer}[$_ ]?1:0} (0..($wordLength-1)) ]; 
 	$answer=join("",map {$workspace{match}[$_ ]==1?" ":$workspace{answer}[$_ ]} (0..($wordLength-1)));
