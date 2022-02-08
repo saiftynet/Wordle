@@ -10,7 +10,7 @@ It is a simple command line Perl application that is sort of replicates the Word
 
 now with game statistics
 
-![image](https://user-images.githubusercontent.com/34284663/152949003-443db45d-fdc8-4c52-b725-7feb42ae3eca.png)
+![image](https://user-images.githubusercontent.com/34284663/153064952-b6b13645-90ed-46b0-a520-d57518519c68.png)
 
 
 CHANGES
@@ -25,5 +25,9 @@ V0.03
 V0.05
 1) Added  statistics including game time, histogram
 2) Improved algorithm for getting matches
+
+v0.06
+1) better looking stats including win and fail counts
+2) [bug](https://github.com/saiftynet/Wordle/issues/3) squished by [hymie0](https://github.com/hymie0)
 
 
