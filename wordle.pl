@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;use warnings;
 
-my $VERSION=0.05;
+my $VERSION=0.06;
 
 BEGIN {  # attempt to get this to work on Windows Consoles
    if ($^O eq 'MSWin32') {
@@ -36,7 +36,7 @@ foreach my $word (<$fh>){
 close $fh;
 
 #main game loop
-while (!$goes || prompt("\nWant another game Y/N?")!~/n/i){
+while (!$goes || prompt("\nWant another game Y/N?")!~/^n/i){
 	my $time=time;
 	@rows=("|"."   |"x$wordLength)x$maxGuesses;   #empty cells
 	$guess=""; $goes=0; %workspace=(gotIt=>0, guessList=>{});
@@ -48,7 +48,7 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/n/i){
 	while (!$workspace{gotIt} && $goes++  < $maxGuesses){
 		drawTable();
 		while ($guess eq "" || notValid($guess)){
-			$guess=uc(prompt("Guess $goes >>"));
+			$guess=uc(prompt("   Guess $goes"));
 		}
 		last if ($guess eq "G");
 		updateKeyboard($guess,$answer);      # Colour keyboard
@@ -69,8 +69,8 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/n/i){
 	$scores{display}=[@{$scores{display}}," "x8 . "Statistics (".int(100*$scores{Wins}/($scores{Wins}+$scores{Fails}))."%)"]; 
 	$scores{display}=[@{$scores{display}},"   $_ ".color("green").("█" x(20*$scores{$_}/$max)).color("reset")] foreach (1..$maxGuesses);
 	$scores{display}=[@{$scores{display}}," ","   Total Game Time = $scores{gametime} (avg ".
-	                                              sprintf("%.2f", $scores{gametime}/($scores{Wins}+$scores{Fails})).")",
-						      "       $scores{Wins} Wins and $scores{Fails} Fails" ];
+	                         sprintf("%.2f", $scores{gametime}/($scores{Wins}+$scores{Fails})).")",
+						     "          $scores{Wins} Win".($scores{Wins}==1?"":"s")." and $scores{Fails} Fail".($scores{Fails}==1?"":"s") ];
 	drawTable("end");
 }
 
@@ -118,7 +118,7 @@ sub updateKeyboard{  # this uses guessed characters to colour keyboard
 
 sub prompt{ 
 	my $pr=shift;
-	print color('bold yellow'),$pr,">>",color('bold green');
+	print color('bold yellow'),$pr,"  >>",color('bold green');
 	chomp(my $response=<STDIN>);
 	print color('reset');
 	return $response;
@@ -127,20 +127,20 @@ sub prompt{
 sub notValid{
 	my $word=shift;
 	if ($word eq "Q"){
-		$word=$guess="" && return 1 unless ((prompt("Are you sure you want to quit? (y/N)")=~/y/i) && exit);
+		$word=$guess="" && return 1 unless ((prompt("   Are you sure you want to quit? (y/N)")=~/y/i) && exit);
 	}
 	return 1 if ($word eq "");
 	return 0 if ($word eq "G");
 	if (length $word != $wordLength){
-		print color('bold red')."Word must have $wordLength letters, pal!\n", color('reset');
+		print color('bold red')."   Word must have $wordLength letters, pal!\n", color('reset');
 		return 1;
 	}
 	elsif (! exists $validWords{$word}){
-		print color('bold red'),"You crazy? That word does not exist!\n", color('reset');
+		print color('bold red'),"   You crazy? That word does not exist!\n", color('reset');
 		return 1;
 	}
 	elsif($workspace{guessList}{$word}){
-		print color('bold red'),"You already tried that word, mate!\n", color('reset');
+		print color('bold red'),"   You already tried that word, mate!\n", color('reset');
 		return 1;
 	}
 	else{
