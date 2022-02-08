@@ -110,7 +110,7 @@ sub updateKeyboard{  # this uses guessed characters to colour keyboard
 	foreach my $gc(split (//,$guess)){
 	    my $c=($answer=~/$gc/)?color("cyan"):color("red");
 	    my $r=color("reset");
-		foreach my $kbRow (0..@keyboard){
+		foreach my $kbRow (0..$#keyboard){
 			$keyboard[$kbRow]=~s/ $gc / $c$gc$r /;
 		}
 	}
