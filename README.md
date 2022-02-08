@@ -10,7 +10,8 @@ It is a simple command line Perl application that is sort of replicates the Word
 
 now with game statistics
 
-![image](https://user-images.githubusercontent.com/34284663/152687224-b727cf30-e5b5-4785-b7f9-11fd186cf9e0.png)
+![image](https://user-images.githubusercontent.com/34284663/152949003-443db45d-fdc8-4c52-b725-7feb42ae3eca.png)
+
 
 CHANGES
 
