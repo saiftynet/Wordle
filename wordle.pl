@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;use warnings;
 
-my $VERSION=0.06;
+my $VERSION=0.07;
 
 BEGIN {  # attempt to get this to work on Windows Consoles
    if ($^O eq 'MSWin32') {
