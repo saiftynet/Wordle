@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;use warnings;
 
-my $VERSION=0.07;
+my $VERSION=0.08;
 
 BEGIN {  # attempt to get this to work on Windows Consoles
    if ($^O eq 'MSWin32') {
@@ -10,7 +10,6 @@ BEGIN {  # attempt to get this to work on Windows Consoles
    Win32::Console::ANSI->import;
 }
 use Term::ANSIColor;  # allow coloured terminal output
-use JSON;
 
 my $wordLength=5;     # set number of letters 
 my $maxGuesses=6;     # set number of guesses 
@@ -70,12 +69,12 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/^n/i){
 	}
 	$scores{gametime}+=time-$time;
 	if ($workspace{gotIt}){ 
-		$scores{display}=["   Well done!! Got it in $goes goes " , "   in ".(time-$time)." secs"];
+		$scores{display}=[color("green")."        ***WELL DONE***".color("reset"),"   Got it in $goes goes in ".(time-$time)." secs"];
 		$scores{Wins}++;$scores{$goes}++;$scores{Streak}++;
 		$scores{"Longest Streak"}=$scores{Streak} if $scores{"Longest Streak"}<$scores{Streak}
 	}
 	else{
-		$scores{display}=["   Failed!! answer was $answer"];
+		$scores{display}=[color("red")."     Failed!! answer was ".color("reset")."\" $answer\""];
 		$scores{Fails}++;$scores{Streak}=0;
 	}
 	
@@ -86,16 +85,15 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/^n/i){
 	                         sprintf("%.2f", $scores{gametime}/($scores{Wins}+$scores{Fails})).")",
 						     "  Longest streak = $scores{'Longest Streak'}  Current Streak = $scores{Streak} "];
 	drawTable("end");
+	saveScores();
 }
 
-saveNExit();
 
-sub saveNExit{
+sub saveScores{
 	delete $scores{display};
-	open my $fh, ">", $saves;
-	print $fh "$_=$scores{$_}\n" foreach (keys %scores);
+	open my $fh, ">", $saves; 
+	print $fh "$_=$scores{$_}\n" foreach (sort keys %scores);
 	close $fh;
-	exit;
 }
 	
 	
@@ -103,7 +101,7 @@ sub saveNExit{
 sub drawTable{ # draws the saved rows, the help message and the keyboard
 	my $end=shift;
 	system $^O eq 'MSWin32' ? 'cls':'clear';
-	print color("bright_magenta")."                      W O R D L E  in  P E R L \n\n".color("reset");
+	print color("bright_magenta")."                      W O R D L E  in  P E R L (v $VERSION) \n\n".color("reset");
 	my $rowseparator="       +".("---+" x $wordLength);
 	my $line=0;
 	my @helpText=($end?@{$scores{display}}:(@help," ",@keyboard));
@@ -153,7 +151,7 @@ sub prompt{
 sub notValid{
 	my $word=shift;
 	if ($word eq "Q"){
-		$word=$guess="" && return 1 unless ((prompt("   Are you sure you want to quit? (y/N)")=~/y/i) && saveNExit());
+		$word=$guess="" && return 1 unless ((prompt("   Are you sure you want to quit? (y/N)")=~/y/i) && saveScores() && exit);
 	}
 	return 1 if ($word eq "");
 	return 0 if ($word eq "G");
