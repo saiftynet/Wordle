@@ -84,8 +84,7 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/^n/i){
 	$scores{display}=[@{$scores{display}},"   $_ ".color("green").("█" x(20*$scores{$_}/$max)).color("reset")] foreach (1..$maxGuesses);
 	$scores{display}=[@{$scores{display}}," ","   Total Game Time = $scores{gametime} (avg ".
 	                         sprintf("%.2f", $scores{gametime}/($scores{Wins}+$scores{Fails})).")",
-						     "  Longest streak = $scores{'Longest Streak'}  Current Streak = grate
-						     $scores{Streak} "];
+						     "  Longest streak = $scores{'Longest Streak'}  Current Streak = $scores{Streak} "];
 	drawTable("end");
 }
 
