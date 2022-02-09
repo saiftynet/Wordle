@@ -10,7 +10,7 @@ It is a simple command line Perl application that is sort of replicates the Word
 
 now with game statistics
 
-![image](https://user-images.githubusercontent.com/34284663/153064952-b6b13645-90ed-46b0-a520-d57518519c68.png)
+![image](https://user-images.githubusercontent.com/34284663/153229345-e4b2c188-cdaa-42ac-9fa4-b40e79d758de.png)
 
 
 CHANGES
@@ -29,5 +29,9 @@ V0.05
 v0.06
 1) better looking stats including win and fail counts
 2) [bug](https://github.com/saiftynet/Wordle/issues/3) squished by [hymie0](https://github.com/hymie0)
+
+v0.07
+1) added automatic save game
+2) records winning streak, and longest streak
 
 
