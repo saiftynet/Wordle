@@ -10,14 +10,25 @@ BEGIN {  # attempt to get this to work on Windows Consoles
    Win32::Console::ANSI->import;
 }
 use Term::ANSIColor;  # allow coloured terminal output
+use JSON;
 
 my $wordLength=5;     # set number of letters 
 my $maxGuesses=6;     # set number of guesses 
                       # use a local list of words or else a Unixy source
 my $source    =  (-e "words")?"words":"/usr/share/dict/words";
+my $saves     = "scores";   # path to savefile
 
 my (@rows, $goes,$guess,%workspace,@keyboard,%scores);
-$scores{$_}=0 foreach (1..$maxGuesses,"Wins","Fails","gametime");
+
+if (-e $saves){
+	open my $fh, "<", "scores"; 
+	foreach my $line (<$fh>){
+		chomp $line;
+		my ($key,$value)=split(/=/, $line);
+		$scores{$key}=$value;
+    }
+}
+$scores{$_}//=0 foreach (1..$maxGuesses,"Wins","Fails","Streak","Longest Streak","gametime");
 
 my @help=(
 "   Try and guess a $wordLength letter word in $maxGuesses moves"," ",
@@ -34,6 +45,7 @@ foreach my $word (<$fh>){
 	$validWords{uc($1)}=1 if ($word=~m/^([a-z]{$wordLength})\n?$/)
 }
 close $fh;
+
 
 #main game loop
 while (!$goes || prompt("\nWant another game Y/N?")!~/^n/i){
@@ -59,20 +71,36 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/^n/i){
 	$scores{gametime}+=time-$time;
 	if ($workspace{gotIt}){ 
 		$scores{display}=["   Well done!! Got it in $goes goes " , "   in ".(time-$time)." secs"];
-		$scores{Wins}++;$scores{$goes}++;
+		$scores{Wins}++;$scores{$goes}++;$scores{Streak}++;
+		$scores{"Longest Streak"}=$scores{Streak} if $scores{"Longest Streak"}<$scores{Streak}
 	}
 	else{
-		$scores{display}=["   Failed!! answer was $answer"];;
-		$scores{Fails}++;
+		$scores{display}=["   Failed!! answer was $answer"];
+		$scores{Fails}++;$scores{Streak}=0;
 	}
+	
 	my $max=(sort {$a <=> $b}(@scores{1..$maxGuesses}),1)[-1];
-	$scores{display}=[@{$scores{display}}," "x8 . "Statistics (".int(100*$scores{Wins}/($scores{Wins}+$scores{Fails}))."%)"]; 
+	$scores{display}=[@{$scores{display}},"   Statistics (".int(100*$scores{Wins}/($scores{Wins}+$scores{Fails}))."%) $scores{Wins} Win".($scores{Wins}==1?"":"s")." and $scores{Fails} Fail".($scores{Fails}==1?"":"s")]; 
 	$scores{display}=[@{$scores{display}},"   $_ ".color("green").("█" x(20*$scores{$_}/$max)).color("reset")] foreach (1..$maxGuesses);
 	$scores{display}=[@{$scores{display}}," ","   Total Game Time = $scores{gametime} (avg ".
 	                         sprintf("%.2f", $scores{gametime}/($scores{Wins}+$scores{Fails})).")",
-						     "          $scores{Wins} Win".($scores{Wins}==1?"":"s")." and $scores{Fails} Fail".($scores{Fails}==1?"":"s") ];
+						     "  Longest streak = $scores{'Longest Streak'}  Current Streak = grate
+						     $scores{Streak} "];
 	drawTable("end");
 }
+
+saveNExit();
+
+sub saveNExit{
+	delete $scores{display};
+	open my $fh, ">", $saves; g
+	stun
+	print $fh "$_=$scores{$_}\n" foreach (keys %scores);
+	close $fh;
+	exit;
+}
+	
+	
 
 sub drawTable{ # draws the saved rows, the help message and the keyboard
 	my $end=shift;
@@ -127,7 +155,7 @@ sub prompt{
 sub notValid{
 	my $word=shift;
 	if ($word eq "Q"){
-		$word=$guess="" && return 1 unless ((prompt("   Are you sure you want to quit? (y/N)")=~/y/i) && exit);
+		$word=$guess="" && return 1 unless ((prompt("   Are you sure you want to quit? (y/N)")=~/y/i) && saveNExit());
 	}
 	return 1 if ($word eq "");
 	return 0 if ($word eq "G");
