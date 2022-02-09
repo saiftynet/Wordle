@@ -93,8 +93,7 @@ saveNExit();
 
 sub saveNExit{
 	delete $scores{display};
-	open my $fh, ">", $saves; g
-	stun
+	open my $fh, ">", $saves;
 	print $fh "$_=$scores{$_}\n" foreach (keys %scores);
 	close $fh;
 	exit;
