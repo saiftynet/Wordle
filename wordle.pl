@@ -9,7 +9,7 @@ BEGIN {  # attempt to get this to work on Windows Consoles
    }
    Win32::Console::ANSI->import;
 }
-use Term::ANSIColor;  # allow coloured terminal output
+use Term::ANSIColor qw( color );  # allow coloured terminal output
 
 my $wordLength=5;     # set number of letters 
 my $maxGuesses=6;     # set number of guesses 
