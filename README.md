@@ -10,7 +10,7 @@ It is a simple command line Perl application that is sort of replicates the Word
 
 now with game statistics
 
-![image](https://user-images.githubusercontent.com/34284663/153260211-d15b2910-949b-4b1f-84f5-71208f719c68.png)
+![image](https://user-images.githubusercontent.com/34284663/153726300-a23c36e2-2a10-4138-b039-4aaaff0fed3c.png)
 
 
 CHANGES
@@ -33,5 +33,9 @@ v0.06
 v0.07
 1) added automatic save game
 2) records winning streak, and longest streak
+
+v0.09
+1) better score display
+2) minor code tidy up
 
 
