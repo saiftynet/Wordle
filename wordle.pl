@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;use warnings;
 
-my $VERSION=0.08;
+my $VERSION=0.09;
 
 BEGIN {  # attempt to get this to work on Windows Consoles
    if ($^O eq 'MSWin32') {
@@ -9,7 +9,7 @@ BEGIN {  # attempt to get this to work on Windows Consoles
    }
    Win32::Console::ANSI->import;
 }
-use Term::ANSIColor qw( color );  # allow coloured terminal output
+use Term::ANSIColor qw(color);  # allow coloured terminal output
 
 my $wordLength=5;     # set number of letters 
 my $maxGuesses=6;     # set number of guesses 
@@ -45,9 +45,8 @@ foreach my $word (<$fh>){
 }
 close $fh;
 
-
 #main game loop
-while (!$goes || prompt("\nWant another game Y/N?")!~/^n/i){
+while (!$goes ||prompt("\nWant another game Y/N?")!~/^n/i){
 	my $time=time;
 	@rows=("|"."   |"x$wordLength)x$maxGuesses;   #empty cells
 	$guess=""; $goes=0; %workspace=(gotIt=>0, guessList=>{});
@@ -69,42 +68,38 @@ while (!$goes || prompt("\nWant another game Y/N?")!~/^n/i){
 	}
 	$scores{gametime}+=time-$time;
 	if ($workspace{gotIt}){ 
-		$scores{display}=[color("green")."        ***WELL DONE***".color("reset"),"   Got it in $goes goes in ".(time-$time)." secs"];
+		$workspace{info}=[color("green")."        ***WELL DONE***".color("reset"),"   Got it in $goes goes in ".(time-$time)." secs"];
 		$scores{Wins}++;$scores{$goes}++;$scores{Streak}++;
 		$scores{"Longest Streak"}=$scores{Streak} if $scores{"Longest Streak"}<$scores{Streak}
 	}
 	else{
-		$scores{display}=[color("red")."     Failed!! answer was ".color("reset")."\" $answer\""];
+		$workspace{info}=[color("red")."     Failed!! answer was ".color("reset")."\" $answer\""];
 		$scores{Fails}++;$scores{Streak}=0;
 	}
 	
 	my $max=(sort {$a <=> $b}(@scores{1..$maxGuesses}),1)[-1];
-	$scores{display}=[@{$scores{display}},"   Statistics (".int(100*$scores{Wins}/($scores{Wins}+$scores{Fails}))."%) $scores{Wins} Win".($scores{Wins}==1?"":"s")." and $scores{Fails} Fail".($scores{Fails}==1?"":"s")]; 
-	$scores{display}=[@{$scores{display}},"   $_ ".color("green").("█" x(20*$scores{$_}/$max)).color("reset")] foreach (1..$maxGuesses);
-	$scores{display}=[@{$scores{display}}," ","   Total Game Time = $scores{gametime} (avg ".
+	$workspace{info}=[@{$workspace{info}},"   Statistics (".int(100*$scores{Wins}/($scores{Wins}+$scores{Fails}))."%) $scores{Wins} Win".($scores{Wins}==1?"":"s")." and $scores{Fails} Fail".($scores{Fails}==1?"":"s")]; 
+	$workspace{info}=[@{$workspace{info}},"   $_ ".color("on_green").(" " x(20*$scores{$_}/$max)).color("on_blue").$scores{$_}.color("reset")] foreach (1..$maxGuesses);
+	$workspace{info}=[@{$workspace{info}}," ","   Total Game Time = $scores{gametime} (avg ".
 	                         sprintf("%.2f", $scores{gametime}/($scores{Wins}+$scores{Fails})).")",
 						     "  Longest streak = $scores{'Longest Streak'}  Current Streak = $scores{Streak} "];
 	drawTable("end");
 	saveScores();
 }
 
-
 sub saveScores{
-	delete $scores{display};
 	open my $fh, ">", $saves; 
 	print $fh "$_=$scores{$_}\n" foreach (sort keys %scores);
 	close $fh;
 }
 	
-	
-
 sub drawTable{ # draws the saved rows, the help message and the keyboard
 	my $end=shift;
 	system $^O eq 'MSWin32' ? 'cls':'clear';
 	print color("bright_magenta")."                      W O R D L E  in  P E R L (v $VERSION) \n\n".color("reset");
 	my $rowseparator="       +".("---+" x $wordLength);
 	my $line=0;
-	my @helpText=($end?@{$scores{display}}:(@help," ",@keyboard));
+	my @helpText=($end?@{$workspace{info}}:(@help," ",@keyboard));
 	foreach my $row(@rows){
 		print $rowseparator   ,($helpText[$line])?$helpText[$line++]:"","\n",
 		      "       $row",($helpText[$line])?$helpText[$line++]:"","\n";
